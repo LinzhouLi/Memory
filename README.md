@@ -63,7 +63,7 @@
 
 - 运行结束后选择缺页总数和缺页率。
 
-<img src="img\test3.png" width = "600" alt="test3" align=center />
+  <img src="img\test3.png" width = "600" alt="test3" align=center />
 
 ## 项目实现
 
