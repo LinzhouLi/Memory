@@ -3,15 +3,12 @@
 
 #include <QMainWindow>
 #include <queue>
-#include <time.h>
 #include <QListWidget>
-#include <QListView>
 
 #define FIFO 0
 #define LRU 1
 #define UNEXECUTED 0 // 指令未执行
 #define EXECUTED 1 // 指令已执行
-#define FIRST_INS -1 // 第一条指令
 
 const int INS_TOTAL = 320; // 每个作业指令总数
 const int INS_PER_PAGE = 10; // 每个页面最多存放10条指令
@@ -44,26 +41,26 @@ private:
     int insDisk[INS_TOTAL]; // 辅存页表
     int pageMissCount; // 缺页次数
     int pageFrequence[PAGES]; // 页使用频度
-    int frequence, stopCode;
-    std::queue<int> q;
+    int frequence, stopCode; // 频度、程序运行状态
+    std::queue<int> q; // 队列，用于FIFO
     MainWindow* win;
 
-    void executeIns(int, int);
-    void _FIFO(int);
-    void _LRU(int);
-    QString toQString(int);
+    void executeIns(int, int); // 执行一条指令
+    void _FIFO(int); // FIFO算法
+    void _LRU(int); // LRU算法
+    QString toQString(int); // 将指令地址转化为字符串
 
 public:
     explicit memory(MainWindow*);
     ~memory(){}
-    void init();
-    void run(int);
+    void init(); // 初始化
+    void run(int); // 运行320条指令
 
 private slots:
-    void begin(int);
+    void begin(int); // 开始执行
 
 public slots:
-    void stop();
+    void stop(); // 停止执行
 };
 
 #endif // MAINWINDOW_H

@@ -112,7 +112,7 @@ void memory::run(int algorithm)
             frontCount++;
         }
 
-        //前地址部分找到一条指令
+        //后地址部分找到一条指令
         while(1)
         {
             if(stopCode == 1) return;
@@ -135,18 +135,18 @@ void memory::run(int algorithm)
             endCount++;
         }
     }
-
+    //计算缺页率
     double pageMissRate = (pageMissCount / (double)INS_TOTAL) * 100;
 
-    win->ui->pagemissCountLabel->setText(QString::number(pageMissCount));
-    win->ui->pagemissRateLabel->setText(QString::number(pageMissRate) + "%");
+    win->ui->pagemissCountLabel->setText(QString::number(pageMissCount)); // 显示缺页总数
+    win->ui->pagemissRateLabel->setText(QString::number(pageMissRate) + "%"); // 显示缺页率
 }
 
 void memory::executeIns(int ins, int algorithm)
 {
-    win->ui->addressLabel->setText(toQString(ins));
+    win->ui->addressLabel->setText(toQString(ins)); // 显示此指令地址信息
 
-    frequence++;
+    frequence++; // 执行一条指令，就使频度数加一
     int pageFound = -1, i, j;
 
     //模拟在内存页中查找指令
@@ -154,7 +154,6 @@ void memory::executeIns(int ins, int algorithm)
     {
         for(j = 0; j < INS_PER_PAGE; j++)
             if(insMem[i][j] == ins)
-            //if(item[i][j]->data() == QString::number(ins))
             {
                 pageFound = i;
                 break;
@@ -171,7 +170,8 @@ void memory::executeIns(int ins, int algorithm)
             _LRU(ins);
         else if(algorithm == FIFO) // 使用FIFO替换算法
             _FIFO(ins);
-        win->ui->pagemissCountLabel->setText(QString::number(pageMissCount));
+
+        win->ui->pagemissCountLabel->setText(QString::number(pageMissCount)); // 显示缺页总数
     }
     else // 如果找到
     {
@@ -184,7 +184,7 @@ void memory::executeIns(int ins, int algorithm)
 
 void memory::_FIFO(int ins)
 {
-    int i, address, pageMem = -1, pageDisk;
+    int i, pageMem = -1, pageDisk;
 
     //查找是否有内存页为空
     for(i = 0; i < PAGES; i++)
@@ -199,36 +199,35 @@ void memory::_FIFO(int ins)
         pageMem = q.front();
         q.pop();
     }
-
     //cout << "replace page " << pageMem << " in memory" <<endl;
 
-    //模拟将辅存页面调入内存页面
-    q.push(pageMem);
-    pageDisk = ins / INS_PER_PAGE;
+    pageDisk = ins / INS_PER_PAGE; // 计算辅存中对应的页面
     pageFrequence[pageMem] = frequence;
-    for(i = 0; i < INS_PER_PAGE; i++)
-    {
-        address = (pageDisk * INS_PER_PAGE) + i;
-        insMem[pageMem][i] = address;
-        win->pageList[pageMem]->item(i)->setData(0, "          " + toQString(address));
-    }
+
+    replace(pageMem, pageDisk); //模拟将辅存页面调入内存页面
+    q.push(pageMem);
 }
 
 void memory::_LRU(int ins)
 {
-    int i, address, pageMem = 0, pageDisk, lastest = pageFrequence[0];
+    int i, pageMem = 0, pageDisk, lastest = pageFrequence[0];
     for(i = 1; i < PAGES; i++)
         if(pageFrequence[i] < lastest)
         {
             lastest = pageFrequence[i];
             pageMem = i;
         }
-
     //cout << "replace page " << pageMem << " in memory" <<endl;
 
-    //模拟将辅存页面调入内存页面
-    pageDisk = ins / INS_PER_PAGE;
+    pageDisk = ins / INS_PER_PAGE; // 计算辅存中对应的页面
     pageFrequence[pageMem] = frequence;
+
+    replace(pageMem, pageDisk);//模拟将辅存页面调入内存页面
+}
+
+void memory::replace(int pageMem, int pageDisk)
+{
+    int i, address;
     for(i = 0; i < INS_PER_PAGE; i++)
     {
         address = (pageDisk * INS_PER_PAGE) + i;
